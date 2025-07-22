@@ -1,4 +1,4 @@
-For account-customization :
+## For account-customization :
 
 # EC2 Tag Enforcer with Lambda and Terraform
 
@@ -32,7 +32,7 @@ This automation enforces tagging by stopping instances without the required tag,
 
 
 
-For Global customization :
+## For Global customization :
 
 # Cross-Account CloudTrail ReadOnly Role (Terraform)
 
@@ -54,8 +54,6 @@ This Terraform module creates an IAM Role in a **member AWS account** that allow
 2. Assume Role Policy: Allows specified IAM Role in management account to assume
 3. Custom IAM Policy: CloudTrail read-only access
 4. Policy Attachment: Attaches policy to the role
-
----
 
 ---
 
