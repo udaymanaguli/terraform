@@ -1,52 +1,58 @@
 variable "management_account_id" {
-  description = "AWS Account ID of the management (Org master) account"
+  description = "AWS Account ID of the management account"
   type        = string
 }
 
 variable "management_role_name" {
-  description = "IAM Role in management account allowed to assume this role"
+  description = "IAM Role in the management account allowed to assume this role"
   type        = string
 }
 
+# Allow sts:AssumeRole from the management account's IAM role
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
-
     actions = ["sts:AssumeRole"]
 
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${var.management_account_id}:role/${var.management_role_name}"]
+      identifiers = [
+        "arn:aws:iam::${var.management_account_id}:role/${var.management_role_name}"
+      ]
     }
   }
 }
 
-resource "aws_iam_role" "org_readonly_role" {
-  name               = "CrossAccountOrgReadOnlyRole"
+# IAM Role in the member account
+resource "aws_iam_role" "cloudtrail_readonly_role" {
+  name               = "CrossAccountCloudTrailReadOnlyRole"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-data "aws_iam_policy_document" "org_readonly_policy" {
+# CloudTrail read-only permissions
+data "aws_iam_policy_document" "cloudtrail_readonly_policy" {
   statement {
-    effect    = "Allow"
-    actions   = [
-      "organizations:DescribeOrganization",
-      "organizations:ListAccounts",
-      "organizations:ListOrganizationalUnitsForParent",
-      "organizations:ListRoots",
-      "organizations:ListPolicies",
-      "organizations:ListTargetsForPolicy"
+    effect = "Allow"
+    actions = [
+      "cloudtrail:DescribeTrails",
+      "cloudtrail:GetTrailStatus",
+      "cloudtrail:LookupEvents",
+      "cloudtrail:ListTrails",
+      "cloudtrail:GetEventSelectors",
+      "cloudtrail:GetInsightSelectors"
     ]
     resources = ["*"]
   }
 }
 
-resource "aws_iam_policy" "org_readonly_policy" {
-  name   = "OrgReadOnlyAccess"
-  policy = data.aws_iam_policy_document.org_readonly_policy.json
+# Create a policy
+resource "aws_iam_policy" "cloudtrail_readonly_policy" {
+  name   = "CloudTrailReadOnlyPolicy"
+  policy = data.aws_iam_policy_document.cloudtrail_readonly_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "attach_readonly_policy" {
-  role       = aws_iam_role.org_readonly_role.name
-  policy_arn = aws_iam_policy.org_readonly_policy.arn
+# Attach policy to the role
+resource "aws_iam_role_policy_attachment" "attach_cloudtrail_policy" {
+  role       = aws_iam_role.cloudtrail_readonly_role.name
+  policy_arn = aws_iam_policy.cloudtrail_readonly_policy.arn
 }
