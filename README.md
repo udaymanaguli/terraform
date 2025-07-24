@@ -70,10 +70,11 @@ The role allows the following CloudTrail actions:
   "cloudtrail:GetEventSelectors",
   "cloudtrail:GetInsightSelectors"
 ]
+```
 
 ---
 
 
-## Note
+# Note
 
 This repository contains only the customization files related to the Terraform AFT (Account Factory for Terraform) project. Other required components and dependencies such as the AFT framework setup, backend configuration, and full AFT deployment scripts are not included here. This repo is meant to showcase how customization (like account-level customizations, SCPs, tag files, Lambda function code, etc.) is managed within AFT.
